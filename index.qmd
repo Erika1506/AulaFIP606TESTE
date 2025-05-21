@@ -1,0 +1,56 @@
+---
+title: "Coffe rust"
+author: Erika Sousa
+date: 2025-05-21
+warning: false
+message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+## Apresentação
+
+![](images/images.jpg){fig-align="center" width="424"}
+
+O conjunto de dados será ferrugem docaféna Etiópia que está no arquivo de dados na nuvem.
+
+## Importa os dados
+
+Usaremos a função `gsheet2tbl()` do pacote \[gsheet\] para carregar os dados no ambiente
+
+```{r}
+library(gsheet)
+cr <- gsheet2tbl("https://docs.google.com/spreadsheets/d/1bq2N19DcZdtax2fQW9OHSGMR0X2__Z9T/edit?gid=1871397229#gid=1871397229")
+
+```
+
+## Visualiza os dados
+
+Usaremos a função `datatable()` do pacote `DT()`
+
+```{r}
+library(DT)
+datatable(cr)
+```
+
+## Mapa
+
+```{r}
+library(rnaturalearth)
+remotes::install_github("ropensci/rnaturalearthhires")
+ETH <- ne_states(country = "Ethiopia",
+                 returnclass = "sf")
+library(tidyverse)
+library(ggthemes)
+library(ggspatial)
+ggplot(ETH) + 
+  geom_sf(fill = "white") + 
+  geom_point(data =cr, aes(lon,lat, color = inc)) +
+  scale_color_viridis_c() +
+  theme_minimal() +
+  annotation_scale(location = "tl") +
+  annotation_north_arrow(location = "br", which_north = "true") +
+  labs(title = "Ferrugem do café na Etiópia", x = "Longitude", y = "Latitude", subtitle = "Levantamento em fazendas", caption = "Fonte: Del Ponte et al. (2025)",
+       color = "Incidência (%)")
+ggsave("mapa_etiopia.png", bg = "white")
+```
